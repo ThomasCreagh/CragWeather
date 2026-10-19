@@ -1,18 +1,164 @@
+
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<title>Crag Weather</title>
-		<link rel="stylesheet" href="css/style.css" />
-		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-			integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-			crossorigin=""/>
-		<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-			integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-			crossorigin=""></script>
-	</head>
-	<body>
-		<div id="map" style="height: 400px;"></div>
-		<script src="js/app.js"></script>
-	</body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CragWeather</title>
+
+  <link rel="stylesheet" href="/css/style.css">
+
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  >
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <script src="/js/app.js" defer></script>
+</head>
+
+<body>
+  <div id="app" v-cloak>
+    <header>
+      <h1>CragWeather</h1>
+    </header>
+
+    <main>
+      <section class="top-section">
+        <aside class="sidebar">
+          <form @submit.prevent="searchCity">
+            <input
+              v-model="search"
+              placeholder="Search location"
+              aria-label="Search location"
+            >
+            <button type="submit" :disabled="loading">
+              Search
+            </button>
+          </form>
+
+          <h3>Popular crags</h3>
+
+          <button
+            v-for="crag in crags"
+            :key="crag.name"
+            class="crag-button"
+            @click="selectCrag(crag)"
+          >
+            {{ crag.name }}
+          </button>
+        </aside>
+
+        <div id="map"></div>
+      </section>
+
+      <p v-if="waiting">
+        Fetching weather in 2 seconds...
+      </p>
+
+      <p v-if="loading">
+        Loading weather...
+      </p>
+
+      <p v-if="loading">Loading weather...</p>
+      <p v-if="error" class="error">{{ error }}</p>
+      <div v-if="weather && weather.packing" class="packing-items">
+        <p v-if="weather.packing.umbrella">
+          Bring an umbrella, rain is forecast.
+        </p>
+
+        <p>
+          Pack for {{ weather.packing.clothing }} weather.
+        </p>
+      </div>
+
+      <section v-if="weather" class="forecast">
+        <h2>
+          Forecast for {{ selectedLocation || weather.city }}
+        </h2>
+
+        <div class="forecast-grid">
+          <article
+            v-for="day in weather.days"
+            :key="day.date"
+            class="day-card"
+          >
+            <h3>{{ formatDate(day.date) }}</h3>
+
+            <p>
+              Sunrise: {{ formatTime(day.sunrise) }}
+              <br>
+              Sunset: {{ formatTime(day.sunset) }}
+            </p>
+
+            <p>
+              <strong>{{ day.temperature.day }}°C</strong>
+              <br>
+              Feels like {{ day.feelsLike }}°C
+            </p>
+
+            <p>
+              Humidity: {{ day.humidity }}%
+              <br>
+              Pressure: {{ day.pressure }} hPa
+            </p>
+
+            <div class="weather-description">
+              <img
+                :src="weatherIcon(day.icon)"
+                :alt="day.description"
+              >
+              <span>{{ day.description }}</span>
+            </div>
+
+            <p>
+              Wind: {{ windDirection(day.windDirection) }}
+              <br>
+              {{ day.windSpeed }} m/s
+              <br>
+              Gusts: {{ day.windGust ?? 'N/A' }} m/s
+            </p>
+
+            <p>
+              Rain chance: {{ Math.round(day.rainProbability * 100) }}%
+              <br>
+              Rainfall: {{ day.rainfall }} mm
+            </p>
+
+            <div class="pollution">
+              <h4>Air pollution</h4>
+
+              <template v-if="day.pollution">
+                <p v-if="!day.pollution.warnings.length" class="good">
+                  No pollutant warnings
+                </p>
+
+                <div
+                  v-for="warning in day.pollution.warnings"
+                  :key="warning.pollutant"
+                  class="warning"
+                >
+                  <strong>
+                    {{ pollutantName(warning.pollutant) }}
+                  </strong>
+
+                  <p>
+                    {{ warning.value }} µg/m³
+                    <br>
+                    Exceeds limit by {{ warning.exceededBy }} µg/m³
+                  </p>
+
+                  <p>{{ warning.healthRisks }}</p>
+                </div>
+              </template>
+
+              <p v-else>Pollution data unavailable</p>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
 </html>

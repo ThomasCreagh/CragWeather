@@ -21,19 +21,24 @@ const healthRisks = {
 };
 
 async function getXDayWeatherLatLon(days, lat, lon) {
-    if (days > 15) { days = 15; }
-    return getXDayWeather(`http://api.openweathermap.org/data/2.5/forecast/daily?lat=${lat}&lon=${lon}&cnt=${days+1}&units=metric&appid=${API_KEY}`);
+  if (days > 15) { days = 15; }
+  return getXDayWeather(`http://api.openweathermap.org/data/2.5/forecast/daily?lat=${lat}&lon=${lon}&cnt=${Number(days) + 1}&units=metric&appid=${API_KEY}`);
 };
 
 async function getXDayWeatherCity(days, city) {
-    if (days > 15) { days = 15; }
-    return getXDayWeather(`http://api.openweathermap.org/data/2.5/forecast/daily?q=${city}&cnt=${days+1}&units=metric&appid=${API_KEY}`);
+  if (days > 15) { days = 15; }
+  return getXDayWeather(`http://api.openweathermap.org/data/2.5/forecast/daily?q=${city}&cnt=${Number(days) + 1}&units=metric&appid=${API_KEY}`);
 }
 
 async function getXDayWeather(fetchStr) {
   const weatherResponse = await fetch(fetchStr);
 
   if (!weatherResponse.ok) {
+    const errorData = await weatherResponse.text();
+
+    console.error("OpenWeather error:", errorData);
+    console.error("fetchStr:", fetchStr);
+
     throw new Error(`Weather API error: ${weatherResponse.status}`);
   }
 
@@ -52,6 +57,26 @@ async function getXDayWeather(fetchStr) {
   const airData = await airResponse.json();
 
   return parseWeather(weatherData, airData);
+}
+
+// logic for advice
+function getPackingAdvice(days) {
+  const next3Days = days.slice(0, 3);
+
+  const umbrella = next3Days.some(day =>
+    day.rainProbability > 0 || day.rainfall > 0
+  );
+
+  const avgTemp = next3Days.reduce(
+    (sum, day) => sum + day.temperature.day, 0
+  ) / next3Days.length;
+
+  const clothing =
+    avgTemp < 8 ? "Cold" :
+    avgTemp > 24 ? "Hot" :
+    "Mild";
+
+  return { umbrella, clothing };
 }
 
 // air pollution parsing
@@ -111,28 +136,26 @@ function checkPollution(entry) {
 // weather parsing
 function parseWeather(data, airData) {
   const timezone = data.city.timezone;
+  const pollution = parseDailyPollution(airData.list, timezone);
 
-  const pollution = parseDailyPollution(
-    airData.list,
-    timezone
-  );
+  const days = data.list.map(day => {
+    const date = new Date((day.dt + timezone) * 1000)
+      .toISOString().split("T")[0];
+
+    return {
+      ...parseDay(day),
+      date,
+      pollution: pollution[date] ?? null
+    };
+  });
 
   return {
     city: data.city.name,
     country: data.city.country,
     coordinates: data.city.coord,
     timezone,
-
-    days: data.list.map(day => {
-      const date = new Date((day.dt + timezone) * 1000)
-        .toISOString().split("T")[0];
-
-      return {
-        ...parseDay(day),
-        date,
-        pollution: pollution[date] ?? null
-      };
-    })
+    packing: getPackingAdvice(days),
+    days
   };
 }
 
