@@ -1,0 +1,163 @@
+can you breifly give me a typical file tree structure a small express js, html, css, js and vue application might have? the server will have under 10 api calls most likely without vite
+my-app/
+├── node_modules/
+├── public/
+│   ├── index.html
+│   ├── css/
+│   │   └── style.css
+│   ├── js/
+│   │   ├── app.js           # Vue initialization
+│   │   ├── components/
+│   │   │   ├── Navbar.js
+│   │   │   └── Dashboard.js
+│   │   └── services/
+│   │       └── api.js       # Fetch requests
+│   └── assets/
+│       └── images/
+│
+├── server/
+│   ├── routes/
+│   │   └── api.js           # API endpoints
+│   ├── controllers/
+│   │   └── apiController.js # API logic
+│   └── middleware/
+│       └── errorHandler.js
+│
+├── .env
+├── .gitignore
+├── package.json
+└── server.js                # Express entry point
+
+How it works:
+
+    server.js — Starts Express, serves public/, mounts API routes.
+
+    routes/ — Defines endpoints (GET /api/users, etc.).
+
+    controllers/ — Handles endpoint logic.
+
+    public/ — Frontend HTML, CSS and Vue.
+
+    services/api.js — Frontend fetch() calls to Express.
+
+    components/ — Vue components using plain JavaScript.
+
+Without Vite: Load Vue 3 via CDN in index.html, using ES modules for your own JavaScript files.
+
+For fewer than 10 API endpoints, you could simplify further by merging routes/api.js and controllers/apiController.js into one file.
+
+what are the good limits on: co, no2, o3, so2, pm2_5, pm10
+
+Good air quality limits (WHO guidelines):
+
+Pollutant
+	
+
+Good limit
+	
+
+Averaging time
+
+CO
+	
+
+≤ 4 mg/m³
+	
+
+24 hours
+
+NO₂
+	
+
+≤ 25 µg/m³
+	
+
+24 hours
+
+O₃
+	
+
+≤ 100 µg/m³
+	
+
+8 hours
+
+SO₂
+	
+
+≤ 40 µg/m³
+	
+
+24 hours
+
+PM2.5
+	
+
+≤ 15 µg/m³
+	
+
+24 hours
+
+PM10
+	
+
+≤ 45 µg/m³
+	
+
+24 hours
+
+Source: WHO 2021 Air Quality Guidelines. 
+NCBI Bookshelf
+
+Important: These are health-based guidelines, not guaranteed safe thresholds. Lower is better.
+
+For sensor readings, the units and averaging period matter.
+
+I can also provide good / moderate / unhealthy / dangerous ranges for all six pollutants.
+
+for the following: co, no2, o3, so2, pm2_5, pm10
+
+give me potential health risks associated with those levels being above their good limits
+
+Potential health risks when air pollutants exceed their recommended limits:
+
+Pollutant
+	
+
+Potential health risks
+
+CO (Carbon monoxide)
+	
+
+Headaches, dizziness, nausea, fatigue, reduced oxygen delivery to organs. Severe exposure can cause unconsciousness or death.
+
+NO₂ (Nitrogen dioxide)
+	
+
+Airway inflammation, coughing, wheezing, shortness of breath, worsened asthma, increased respiratory infections.
+
+O₃ (Ozone)
+	
+
+Chest pain, throat irritation, coughing, reduced lung function, worsened asthma and other respiratory diseases.
+
+SO₂ (Sulfur dioxide)
+	
+
+Breathing difficulties, throat irritation, bronchospasm, asthma attacks, especially in sensitive individuals.
+
+PM2.5 (Fine particles)
+	
+
+Lung inflammation, worsened asthma, increased risk of heart attacks, strokes, cardiovascular disease and premature death with prolonged exposure.
+
+PM10 (Inhalable particles)
+	
+
+Eye and throat irritation, coughing, aggravated asthma and bronchitis, reduced lung function and increased respiratory problems.
+
+Important: Exceeding a guideline does not mean these symptoms will immediately occur. Risk depends on concentration, exposure duration and individual health.
+
+Children, older adults, pregnant people, and those with heart or lung conditions are generally more vulnerable. 
+World Health Organization
++1
