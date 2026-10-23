@@ -60,11 +60,12 @@ createApp({
         const { lat, lon } = weather.coordinates;
         this.updateMap(lat, lon);
 
-      } catch (err) {
-        if (id !== this.requestId) return;
+      } catch (error) {
+        console.error(error.message);
 
-        this.error = err.message;
-        this.weather = null;
+        res.status(error.status || 500).json({
+          error: error.message
+        });
       } finally {
         if (id === this.requestId) {
           this.loading = false;

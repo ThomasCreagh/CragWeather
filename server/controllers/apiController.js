@@ -18,10 +18,14 @@ async function getXDayWeather(fetchStr) {
   const weatherResponse = await fetch(fetchStr);
 
   if (!weatherResponse.ok) {
-    const errorData = await weatherResponse.text();
+    const error = new Error(
+      weatherResponse.status === 404
+        ? "Location not found"
+        : "Weather API error"
+    );
 
-    console.error("OpenWeather error:", errorData);
-    throw new Error(`Weather API error: ${weatherResponse.status}`);
+    error.status = weatherResponse.status === 404 ? 404 : 502;
+    throw error;
   }
 
   const weatherData = await weatherResponse.json();
