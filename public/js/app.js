@@ -63,9 +63,9 @@ createApp({
       } catch (error) {
         console.error(error.message);
 
-        res.status(error.status || 500).json({
-          error: error.message
-        });
+        if (id === this.requestId) {
+          this.error = error.message || "Failed to fetch weather";
+        }
       } finally {
         if (id === this.requestId) {
           this.loading = false;
